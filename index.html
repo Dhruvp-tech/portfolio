@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dhruv Pandey — Java Full Stack Developer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --bg2: #111118; --bg3: #16161f; --card: #1a1a24;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f5; --muted: #8888a0; --accent: #6c63ff; --accent2: #a78bfa;
+    --accent3: #38bdf8; --green: #34d399; --amber: #fbbf24;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.7; overflow-x: hidden; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+  .fade-in { animation: fadeInUp 0.6s ease forwards; }
+  .cursor { display: inline-block; animation: blink 1s step-end infinite; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+const NAV_LINKS = ['Skills','Projects','Education','Contact'];
+const ROLES = ['Java Full Stack Developer','Spring Boot Engineer','React.js Developer','Problem Solver'];
+const SKILLS = [
+  { icon:'☕', title:'Languages', tags:['Java','JavaScript','C','C++','SQL'] },
+  { icon:'⚙️', title:'Backend', tags:['Spring Boot 3','Spring MVC','Spring Security','REST APIs','JWT Auth','Maven'] },
+  { icon:'⚛️', title:'Frontend', tags:['React.js','HTML5','CSS3','State Mgmt','Responsive UI'] },
+  { icon:'🗄️', title:'Database', tags:['MySQL','JPA/Hibernate','JDBC'] },
+  { icon:'🛠️', title:'Tools', tags:['Git','GitHub','Postman','IntelliJ IDEA','VS Code','iText PDF'] },
+  { icon:'🧠', title:'Core CS', tags:['DSA','OOP','SDLC','Software Engg.','Problem Solving'] },
+];
+const PROJECTS = [
+  { num:'01', year:'2024', title:'Student Result Management System', desc:'Full-stack web app for managing and publishing student academic results. Includes JWT-based role authentication (Admin/Student), relational DB schema, and downloadable PDF result reports.', stack:['Spring Boot 3','React.js','MySQL','JWT','iText PDF'], color:'#a78bfa' },
+  { num:'02', year:'2024', title:'ATS Resume Score Checker', desc:'Full-stack tool to evaluate resumes against job descriptions using keyword matching algorithms. Computes ATS match percentage and provides detailed feedback through an interactive React.js UI.', stack:['Java','Spring Boot','React.js','NLP Matching'], color:'#38bdf8' },
+  { num:'03', year:'2024', title:'Online Job Portal', desc:'Job portal with separate employer & job-seeker modules. Features CRUD for listings/applications/profiles, Spring Security authentication, and a React.js UI with search & filter functionality.', stack:['Spring Boot','React.js','MySQL','REST APIs'], color:'#34d399' },
+  { num:'04', year:'2023', title:'Shopping Cart Application', desc:'Dynamic shopping cart built with React.js featuring add/remove item functionality, real-time UI updates, and clean state management using React hooks.', stack:['JavaScript','React.js','React Hooks'], color:'#fbbf24' },
+];
+const EDUCATION = [
+  { date:'2023 – 2027', title:'B.Tech, Computer Science & Engineering', org:'Rajkiya Engineering College (AKTU), Sonbhadra, UP', detail:'CGPA: 7.3  ·  Actively practising DSA for technical interviews' },
+  { date:'2022', title:'Senior Secondary (Class XII)', org:'Vrindavan Public School, Mathura', detail:'84.4%' },
+  { date:'2020', title:'Secondary (Class X)', org:'Vrindavan Public School, Mathura', detail:'79%' },
+];
+const CERTS = [
+  { icon:'🛡️', title:'Cybersecurity Short-Term Course', desc:'Network Security, Threat Awareness & Security Fundamentals' },
+  { icon:'🤖', title:'AI Impact Summit', desc:'Sessions on Artificial Intelligence & real-world industry applications' },
+  { icon:'♟️', title:'Chess Competition Winner', desc:'School-Level Champion (Class XII) — Strategic thinking & decision-making' },
+  { icon:'📐', title:'Mathematics Olympiad', desc:'School-Level Participant (Class X) — Analytical & problem-solving abilities' },
+];
+
+/* ── Typewriter ── */
+function Typewriter({ roles }) {
+  const [roleIdx, setRoleIdx] = useState(0);
+  const [displayed, setDisplayed] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = roles[roleIdx];
+    let timeout;
+    if (!deleting && displayed.length < current.length) {
+      timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 70);
+    } else if (!deleting && displayed.length === current.length) {
+      timeout = setTimeout(() => setDeleting(true), 1800);
+    } else if (deleting && displayed.length > 0) {
+      timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 40);
+    } else if (deleting && displayed.length === 0) {
+      setDeleting(false);
+      setRoleIdx((roleIdx + 1) % roles.length);
+    }
+    return () => clearTimeout(timeout);
+  }, [displayed, deleting, roleIdx, roles]);
+
+  return (
+    <p style={{ fontFamily:'var(--mono)', color:'var(--muted)', fontSize:'1rem', marginBottom:'1.5rem' }}>
+      $ <span style={{ color:'var(--green)' }}>{displayed}</span>
+      <span className="cursor" style={{ color:'var(--accent2)' }}>|</span>
+    </p>
+  );
+}
+
+/* ── Avatar ── */
+function Avatar() {
+  return (
+    <div style={{ position:'relative', width:220, height:220, flexShrink:0, animation:'float 4s ease-in-out infinite' }}>
+      <div style={{
+        position:'absolute', inset:-4, borderRadius:'50%',
+        background:'conic-gradient(var(--accent), var(--accent3), var(--accent))',
+        animation:'spin 8s linear infinite'
+      }} />
+      <div style={{
+        position:'absolute', inset:3, borderRadius:'50%', background:'var(--bg)',
+        display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden'
+      }}>
+        <div style={{
+          width:'100%', height:'100%',
+          background:'linear-gradient(135deg, #1e1e2e, #2a2a3e)',
+          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+          color:'var(--accent2)', fontSize:'3rem', fontWeight:700, gap:4
+        }}>
+          DP
+          <small style={{ fontSize:'0.6rem', color:'var(--muted)', fontFamily:'var(--mono)', letterSpacing:'0.1em' }}>@dhruvp-tech</small>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Skill Card ── */
+function SkillCard({ icon, title, tags }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background:'var(--card)', border:`1px solid ${hovered ? 'var(--border2)' : 'var(--border)'}`,
+        borderRadius:12, padding:'1.25rem', transition:'all 0.2s',
+        transform: hovered ? 'translateY(-2px)' : 'none',
+      }}
+    >
+      <div style={{ fontSize:'1.4rem', marginBottom:'0.75rem' }}>{icon}</div>
+      <h3 style={{ fontSize:'0.85rem', fontWeight:600, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'0.75rem' }}>{title}</h3>
+      <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+        {tags.map(t => (
+          <span key={t} style={{
+            fontSize:'0.76rem', fontFamily:'var(--mono)',
+            background: hovered ? 'rgba(108,99,255,0.12)' : 'rgba(255,255,255,0.05)',
+            border:`1px solid ${hovered ? 'rgba(108,99,255,0.3)' : 'var(--border)'}`,
+            color:'var(--text)', padding:'3px 10px', borderRadius:4, transition:'all 0.2s'
+          }}>{t}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Project Card ── */
+function ProjectCard({ num, year, title, desc, stack, color, index }) {
+  const [hovered, setHovered] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => setExpanded(!expanded)}
+      style={{
+        background:'var(--card)', border:`1px solid ${hovered ? color+'66' : 'var(--border)'}`,
+        borderRadius:14, padding:'1.75rem', display:'flex', flexDirection:'column',
+        transition:'all 0.25s', transform: hovered ? 'translateY(-4px)' : 'none',
+        cursor:'pointer', boxShadow: hovered ? `0 8px 32px ${color}22` : 'none',
+        animation:`fadeInUp 0.5s ease ${index * 0.1}s both`
+      }}
+    >
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'1rem' }}>
+        <span style={{ fontFamily:'var(--mono)', fontSize:'0.75rem', color, opacity:0.8 }}>{num}</span>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ fontFamily:'var(--mono)', fontSize:'0.72rem', color:'var(--muted)', background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', padding:'2px 8px', borderRadius:4 }}>{year}</span>
+          <span style={{ fontSize:'0.75rem', color:'var(--muted)', transition:'transform 0.2s', display:'inline-block', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+        </div>
+      </div>
+      <h3 style={{ fontSize:'1.05rem', fontWeight:600, marginBottom:'0.6rem', color: hovered ? color : 'var(--text)', transition:'color 0.2s' }}>{title}</h3>
+      <p style={{
+        color:'var(--muted)', fontSize:'0.875rem', lineHeight:1.7, flex:1, marginBottom:'1.2rem',
+        maxHeight: expanded ? '200px' : '3.5rem', overflow:'hidden', transition:'max-height 0.3s ease'
+      }}>{desc}</p>
+      <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+        {stack.map(s => (
+          <span key={s} style={{
+            fontSize:'0.72rem', fontFamily:'var(--mono)', color:'var(--accent3)',
+            background:'rgba(56,189,248,0.07)', border:'1px solid rgba(56,189,248,0.15)',
+            padding:'2px 9px', borderRadius:4
+          }}>{s}</span>
+        ))}
+      </div>
+      {expanded && (
+        <p style={{ marginTop:'0.75rem', fontSize:'0.75rem', color:'var(--muted)', fontFamily:'var(--mono)' }}>Click to collapse ↑</p>
+      )}
+    </div>
+  );
+}
+
+/* ── Skills Filter ── */
+function SkillsSection() {
+  const [filter, setFilter] = useState('All');
+  const categories = ['All', ...SKILLS.map(s => s.title)];
+  const filtered = filter === 'All' ? SKILLS : SKILLS.filter(s => s.title === filter);
+  return (
+    <section id="skills" style={{ maxWidth:1100, margin:'0 auto', padding:'5rem 2rem' }}>
+      <div style={{ fontFamily:'var(--mono)', fontSize:'0.75rem', color:'var(--accent2)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:'0.5rem' }}>What I work with</div>
+      <h2 style={{ fontSize:'clamp(1.6rem,3vw,2.2rem)', fontWeight:700, letterSpacing:'-0.02em', marginBottom:'1.5rem' }}>Technical Skills</h2>
+      <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:'2rem' }}>
+        {categories.map(c => (
+          <button key={c} onClick={() => setFilter(c)} style={{
+            padding:'4px 14px', borderRadius:999, fontSize:'0.8rem', fontFamily:'var(--mono)',
+            border:`1px solid ${filter===c ? 'var(--accent2)' : 'var(--border)'}`,
+            background: filter===c ? 'rgba(167,139,250,0.15)' : 'transparent',
+            color: filter===c ? 'var(--accent2)' : 'var(--muted)',
+            cursor:'pointer', transition:'all 0.2s'
+          }}>{c}</button>
+        ))}
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px,1fr))', gap:'1rem' }}>
+        {filtered.map(s => <SkillCard key={s.title} {...s} />)}
+      </div>
+    </section>
+  );
+}
+
+/* ── Contact Form ── */
+function ContactSection() {
+  const [copied, setCopied] = useState(false);
+  const copyEmail = () => {
+    navigator.clipboard.writeText('pandeydhruv9027@gmail.com');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  const links = [
+    { icon:'📧', label:'pandeydhruv9027@gmail.com', href:'mailto:pandeydhruv9027@gmail.com' },
+    { icon:'📞', label:'+91 9368047264', href:'tel:+919368047264' },
+    { icon:'💼', label:'linkedin.com/in/dhruv-pandey-22b934182', href:'https://linkedin.com/in/dhruv-pandey-22b934182' },
+    { icon:'🐙', label:'github.com/Dhruvp-tech', href:'https://github.com/Dhruvp-tech' },
+    { icon:'📍', label:'Sonbhadra, Uttar Pradesh', href:null },
+  ];
+  return (
+    <section id="contact" style={{ maxWidth:1100, margin:'0 auto', padding:'5rem 2rem' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'4rem', alignItems:'center' }}>
+        <div>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(52,211,153,0.1)', border:'1px solid rgba(52,211,153,0.25)', color:'var(--green)', fontSize:'0.8rem', padding:'4px 12px', borderRadius:999, marginBottom:'1rem' }}>
+            <span style={{ width:6, height:6, borderRadius:'50%', background:'var(--green)', animation:'pulse 2s ease-in-out infinite', display:'inline-block' }} />
+            Open to Internship Opportunities
+          </div>
+          <h2 style={{ fontSize:'2rem', fontWeight:700, marginBottom:'1rem' }}>Let's work<br/>together.</h2>
+          <p style={{ color:'var(--muted)', marginBottom:'2rem', lineHeight:1.8 }}>I'm actively seeking a Full Stack Developer Internship. If you have an opportunity or just want to connect, feel free to reach out!</p>
+          <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
+            <a href="mailto:pandeydhruv9027@gmail.com" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'0.6rem 1.4rem', borderRadius:8, fontSize:'0.9rem', fontWeight:500, textDecoration:'none', background:'var(--accent)', color:'#fff', transition:'all 0.2s' }}>Send me an email ↗</a>
+            <button onClick={copyEmail} style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'0.6rem 1.4rem', borderRadius:8, fontSize:'0.9rem', fontWeight:500, background:'transparent', color: copied ? 'var(--green)' : 'var(--muted)', border:'1px solid var(--border2)', cursor:'pointer', transition:'all 0.2s' }}>
+              {copied ? '✓ Copied!' : '📋 Copy email'}
+            </button>
+          </div>
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:'0.75rem' }}>
+          {links.map(l => (
+            l.href
+              ? <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener" style={{ display:'flex', alignItems:'center', gap:10, color:'var(--muted)', textDecoration:'none', fontSize:'0.9rem', padding:'0.6rem 0.9rem', borderRadius:10, border:'1px solid transparent', transition:'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.color='var(--accent2)'; e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.background='rgba(167,139,250,0.05)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color='var(--muted)'; e.currentTarget.style.borderColor='transparent'; e.currentTarget.style.background='transparent'; }}>
+                  <div style={{ width:36, height:36, borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem', flexShrink:0 }}>{l.icon}</div>
+                  {l.label}
+                </a>
+              : <div key={l.label} style={{ display:'flex', alignItems:'center', gap:10, color:'var(--muted)', fontSize:'0.9rem', padding:'0.6rem 0.9rem' }}>
+                  <div style={{ width:36, height:36, borderRadius:8, background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem', flexShrink:0 }}>{l.icon}</div>
+                  {l.label}
+                </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Scroll progress bar ── */
+function ScrollProgress() {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const fn = () => {
+      const el = document.documentElement;
+      setProgress(el.scrollTop / (el.scrollHeight - el.clientHeight) * 100);
+    };
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+  return (
+    <div style={{ position:'fixed', top:0, left:0, right:0, height:2, zIndex:200, background:'rgba(255,255,255,0.05)' }}>
+      <div style={{ height:'100%', width:`${progress}%`, background:'linear-gradient(90deg, var(--accent), var(--accent3))', transition:'width 0.1s' }} />
+    </div>
+  );
+}
+
+/* ── Nav ── */
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  const goto = id => {
+    document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior:'smooth' });
+    setMenuOpen(false);
+  };
+
+  return (
+    <nav style={{
+      position:'fixed', top:0, left:0, right:0, zIndex:100,
+      display:'flex', justifyContent:'space-between', alignItems:'center',
+      padding:'0.9rem 2rem',
+      background: scrolled ? 'rgba(10,10,15,0.92)' : 'rgba(10,10,15,0.7)',
+      backdropFilter:'blur(12px)',
+      borderBottom:`1px solid ${scrolled ? 'var(--border2)' : 'var(--border)'}`,
+      transition:'all 0.3s'
+    }}>
+      <a href="#home" style={{ fontFamily:'var(--mono)', fontSize:'1rem', color:'var(--accent2)', textDecoration:'none', letterSpacing:'0.05em' }}>dhruv.dev</a>
+      <ul style={{ display:'flex', gap:'2rem', listStyle:'none', margin:0 }}>
+        {NAV_LINKS.map(l => (
+          <li key={l}>
+            <button onClick={() => goto(l)} style={{ background:'none', border:'none', color:'var(--muted)', fontSize:'0.875rem', cursor:'pointer', transition:'color 0.2s', fontFamily:'var(--sans)' }}
+              onMouseEnter={e => e.target.style.color='var(--text)'}
+              onMouseLeave={e => e.target.style.color='var(--muted)'}
+            >{l}</button>
+          </li>
+        ))}
+        <li>
+          <a href="https://github.com/Dhruvp-tech" target="_blank" rel="noopener" style={{ fontFamily:'var(--mono)', fontSize:'0.8rem', padding:'4px 12px', borderRadius:6, border:'1px solid var(--border2)', color:'var(--accent2)', textDecoration:'none', transition:'all 0.2s' }}>GitHub ↗</a>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+
+/* ── Main App ── */
+function App() {
+  const [activeSection, setActiveSection] = useState('');
+  const [projectFilter, setProjectFilter] = useState('All');
+
+  const allStacks = ['All', ...new Set(PROJECTS.flatMap(p => p.stack))];
+  const filteredProjects = projectFilter === 'All' ? PROJECTS : PROJECTS.filter(p => p.stack.includes(projectFilter));
+
+  return (
+    <div style={{ minHeight:'100vh' }}>
+      <ScrollProgress />
+      <Nav />
+
+      {/* HERO */}
+      <section id="home" style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'6rem 2rem 4rem', maxWidth:1100, margin:'0 auto', gap:'4rem', flexWrap:'wrap' }}>
+        <div style={{ flex:1, minWidth:280, animation:'fadeInUp 0.7s ease both' }}>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(108,99,255,0.12)', border:'1px solid rgba(108,99,255,0.3)', color:'var(--accent2)', fontSize:'0.8rem', fontFamily:'var(--mono)', padding:'4px 12px', borderRadius:999, marginBottom:'1.5rem' }}>
+            ▸ Available for Internship
+          </div>
+          <h1 style={{ fontSize:'clamp(2.2rem,5vw,3.5rem)', fontWeight:700, lineHeight:1.15, marginBottom:'0.5rem', letterSpacing:'-0.02em' }}>
+            Hi, I'm<br/>
+            <span style={{ background:'linear-gradient(135deg, var(--accent2), var(--accent3))', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Dhruv Pandey</span>
+          </h1>
+          <Typewriter roles={ROLES} />
+          <p style={{ color:'#aaa', fontSize:'1rem', maxWidth:500, lineHeight:1.8, marginBottom:'2rem' }}>
+            B.Tech CSE student at REC Sonbhadra (AKTU 2027) building full-stack web apps with Spring Boot 3, React.js & MySQL. Passionate about clean APIs, secure auth, and scalable systems.
+          </p>
+          <div style={{ display:'flex', gap:'1rem', flexWrap:'wrap' }}>
+            <a href="#projects" onClick={e => { e.preventDefault(); document.getElementById('projects')?.scrollIntoView({ behavior:'smooth' }); }} style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'0.6rem 1.4rem', borderRadius:8, fontSize:'0.9rem', fontWeight:500, textDecoration:'none', background:'var(--accent)', color:'#fff', transition:'all 0.2s' }}>View Projects →</a>
+            <a href="mailto:pandeydhruv9027@gmail.com" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'0.6rem 1.4rem', borderRadius:8, fontSize:'0.9rem', fontWeight:500, textDecoration:'none', background:'transparent', color:'var(--muted)', border:'1px solid var(--border2)', transition:'all 0.2s' }}>Get in Touch</a>
+          </div>
+        </div>
+        <div style={{ flexShrink:0, animation:'fadeInUp 0.7s 0.2s ease both' }}>
+          <Avatar />
+        </div>
+      </section>
+
+      <hr style={{ border:'none', borderTop:'1px solid var(--border)', maxWidth:1100, margin:'0 auto' }} />
+
+      {/* SKILLS */}
+      <SkillsSection />
+
+      <hr style={{ border:'none', borderTop:'1px solid var(--border)', maxWidth:1100, margin:'0 auto' }} />
+
+      {/* PROJECTS */}
+      <section id="projects" style={{ maxWidth:1100, margin:'0 auto', padding:'5rem 2rem' }}>
+        <div style={{ fontFamily:'var(--mono)', fontSize:'0.75rem', color:'var(--accent2)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:'0.5rem' }}>What I've built</div>
+        <h2 style={{ fontSize:'clamp(1.6rem,3vw,2.2rem)', fontWeight:700, letterSpacing:'-0.02em', marginBottom:'1.5rem' }}>Projects</h2>
+
+        {/* Stack filter */}
+        <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:'2rem' }}>
+          {allStacks.map(s => (
+            <button key={s} onClick={() => setProjectFilter(s)} style={{
+              padding:'4px 14px', borderRadius:999, fontSize:'0.78rem', fontFamily:'var(--mono)',
+              border:`1px solid ${projectFilter===s ? 'var(--accent3)' : 'var(--border)'}`,
+              background: projectFilter===s ? 'rgba(56,189,248,0.1)' : 'transparent',
+              color: projectFilter===s ? 'var(--accent3)' : 'var(--muted)',
+              cursor:'pointer', transition:'all 0.2s'
+            }}>{s}</button>
+          ))}
+        </div>
+
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px,1fr))', gap:'1.5rem' }}>
+          {filteredProjects.map((p, i) => <ProjectCard key={p.num} {...p} index={i} />)}
+        </div>
+        {filteredProjects.length === 0 && (
+          <p style={{ color:'var(--muted)', textAlign:'center', padding:'3rem', fontFamily:'var(--mono)' }}>No projects match this filter.</p>
+        )}
+      </section>
+
+      <hr style={{ border:'none', borderTop:'1px solid var(--border)', maxWidth:1100, margin:'0 auto' }} />
+
+      {/* EDUCATION */}
+      <section id="education" style={{ maxWidth:1100, margin:'0 auto', padding:'5rem 2rem' }}>
+        <div style={{ fontFamily:'var(--mono)', fontSize:'0.75rem', color:'var(--accent2)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:'0.5rem' }}>Background</div>
+        <h2 style={{ fontSize:'clamp(1.6rem,3vw,2.2rem)', fontWeight:700, letterSpacing:'-0.02em', marginBottom:'3rem' }}>Education</h2>
+        <div style={{ display:'flex', flexDirection:'column', gap:'2rem' }}>
+          {EDUCATION.map((e, i) => (
+            <div key={i} style={{ display:'grid', gridTemplateColumns:'160px 1fr', gap:'2rem' }}>
+              <div style={{ fontFamily:'var(--mono)', fontSize:'0.8rem', color:'var(--muted)', paddingTop:4, textAlign:'right' }}>{e.date}</div>
+              <div style={{ borderLeft:'1px solid var(--border2)', paddingLeft:'2rem', position:'relative' }}>
+                <div style={{ position:'absolute', left:-4.5, top:8, width:8, height:8, borderRadius:'50%', background:'var(--accent2)' }} />
+                <h3 style={{ fontSize:'1rem', fontWeight:600, marginBottom:'0.25rem' }}>{e.title}</h3>
+                <div style={{ fontSize:'0.85rem', color:'var(--accent3)', marginBottom:'0.5rem' }}>{e.org}</div>
+                <p style={{ color:'var(--muted)', fontSize:'0.875rem' }}>{e.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <hr style={{ border:'none', borderTop:'1px solid var(--border)', maxWidth:1100, margin:'0 auto' }} />
+
+      {/* CERTS */}
+      <section style={{ maxWidth:1100, margin:'0 auto', padding:'5rem 2rem' }}>
+        <div style={{ fontFamily:'var(--mono)', fontSize:'0.75rem', color:'var(--accent2)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:'0.5rem' }}>Extras</div>
+        <h2 style={{ fontSize:'clamp(1.6rem,3vw,2.2rem)', fontWeight:700, letterSpacing:'-0.02em', marginBottom:'2rem' }}>Certifications & Achievements</h2>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px,1fr))', gap:'1rem' }}>
+          {CERTS.map((c,i) => (
+            <div key={i} style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:12, padding:'1.25rem 1.5rem', display:'flex', alignItems:'flex-start', gap:'1rem', transition:'border-color 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor='var(--border2)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor='var(--border)'}
+            >
+              <div style={{ fontSize:'1.5rem', flexShrink:0, background:'rgba(108,99,255,0.12)', borderRadius:8, width:44, height:44, display:'flex', alignItems:'center', justifyContent:'center' }}>{c.icon}</div>
+              <div>
+                <h3 style={{ fontSize:'0.9rem', fontWeight:600, marginBottom:'0.3rem' }}>{c.title}</h3>
+                <p style={{ fontSize:'0.8rem', color:'var(--muted)' }}>{c.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <hr style={{ border:'none', borderTop:'1px solid var(--border)', maxWidth:1100, margin:'0 auto' }} />
+
+      <ContactSection />
+
+      <footer style={{ textAlign:'center', padding:'2rem', color:'var(--muted)', fontSize:'0.8rem', borderTop:'1px solid var(--border)', fontFamily:'var(--mono)' }}>
+        Built with ♥  ·  Dhruv Pandey  ·  2024  ·  dhruv.dev
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
